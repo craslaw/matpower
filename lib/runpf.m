@@ -184,6 +184,8 @@ if ~isempty(mpc.bus)
                     solver = 'fast-decoupled, BX';
                 case 'GS'
                     solver = 'Gauss-Seidel';
+                case 'ZG'
+                    solver = 'Implicit Z-bus Gauss';
                 case 'PQSUM'
                     solver = 'Power Summation';
                 case 'ISUM'
@@ -207,6 +209,8 @@ if ~isempty(mpc.bus)
                 warnstr = 'Newton algorithm (current or cartesian versions) do';
             elseif strcmp(alg, 'GS')
                 warnstr = 'Gauss-Seidel algorithm does';
+            elseif strcmp(alg, 'ZG')
+                warnstr = 'Implicit Z-bus Gauss algorithm does';
             else
                 warnstr = '';
             end
@@ -263,6 +267,8 @@ if ~isempty(mpc.bus)
                     [V, success, iterations] = fdpf(Ybus, Sbus, V0, Bp, Bpp, ref, pv, pq, mpopt);
                 case 'GS'
                     [V, success, iterations] = gausspf(Ybus, Sbus([]), V0, ref, pv, pq, mpopt);
+                case 'ZG'
+                    [V, success, iterations] = zgausspf(Ybus, Sbus([]), V0, ref, pv, pq, mpopt);
                 case {'PQSUM', 'ISUM', 'YSUM'}
                     [mpc, success, iterations] = radial_pf(mpc, mpopt);
                 otherwise
@@ -272,7 +278,7 @@ if ~isempty(mpc.bus)
 
             %% update data matrices with solution
             switch alg
-                case {'NR', 'NR-SC', 'NR-IP', 'NR-IC', 'FDXB', 'FDBX', 'GS'}
+                case {'NR', 'NR-SC', 'NR-IP', 'NR-IC', 'FDXB', 'FDBX', 'GS', 'ZG'}
                     [bus, gen, branch] = pfsoln(baseMVA, bus, gen, branch, Ybus, Yf, Yt, V, ref, pv, pq, mpopt);
                 case {'PQSUM', 'ISUM', 'YSUM'}
                     bus = mpc.bus;

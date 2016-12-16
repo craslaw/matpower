@@ -63,6 +63,7 @@ function opt = mpoption(varargin)
 %       [ 'FDXB'  - Fast-Decoupled (XB version)                             ]
 %       [ 'FDBX'  - Fast-Decoupled (BX version)                             ]
 %       [ 'GS'    - Gauss-Seidel                                            ]
+%       [ 'ZG'   - Implicit Z-bus Gauss                                     ]
 %       [ 'PQSUM' - Power Summation method (radial networks only)           ]
 %       [ 'ISUM'  - Current Summation method (radial networks only)         ]
 %       [ 'YSUM'  - Admittance Summation method (radial networks only)      ]
@@ -90,6 +91,8 @@ function opt = mpoption(varargin)
 %                                       fast decoupled method
 %   pf.gs.max_it            1000        maximum number of iterations for
 %                                       Gauss-Seidel method
+%   pf.zg.max_it            1000        maximum number of iterations for
+%                                       Implicit Z-bus Gauss method
 %   pf.radial.max_it        20          maximum number of iterations for
 %                                       radial power flow methods
 %   pf.radial.vcorr         0           perform voltage correction procedure
@@ -615,6 +618,9 @@ if have_opt0
             if opt0.v <= 19         %% convert version 19 to 20
                 opt0.pf.current_balance = opt_d.pf.current_balance;
                 opt0.pf.v_cartesian     = opt_d.pf.v_cartesian;
+            end
+            if opt0.v <= 20         %% convert version 20 to 21
+                opt0.pf.zg.max_it   = opt_d.pf.zg.max_it;
             end
             opt0.v = v;
         end
@@ -1543,6 +1549,8 @@ if ~isstruct(opt)
                 'max_it',               30  ), ...
             'gs',                   struct(...
                 'max_it',               1000    ), ...
+            'zg',                   struct(...
+                'max_it',               1000    ), ...
             'radial',               struct(...
                 'max_it',               20   , ...
                 'vcorr',                 0  ), ...
@@ -1646,7 +1654,7 @@ optt = opt;
 %% globals
 %%-------------------------------------------------------------------
 function v = mpoption_version
-v = 20;     %% version number of MATPOWER options struct
+v = 21;     %% version number of MATPOWER options struct
             %% (must be incremented every time structure is updated)
             %% v1   - first version based on struct (MATPOWER 5.0b1)
             %% v2   - added 'linprog' and 'quadprog' fields
@@ -1678,6 +1686,7 @@ v = 20;     %% version number of MATPOWER options struct
             %% v18  - added 'opf.current_balance' and 'opf.v_cartesian'
             %% v19  - added 'opf.softlims.default'
             %% v20  - added 'pf.current_balance' and 'pf.v_cartesian'
+            %% v21  - add option 'pf.zg.max_it' for Implicit Z-bus Gauss
 
 %%-------------------------------------------------------------------
 function db_level = DEBUG

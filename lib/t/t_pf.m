@@ -13,7 +13,7 @@ if nargin < 1
     quiet = 0;
 end
 
-AC_alg = {'NR', 'NR-SC', 'NR-IP', 'NR-IC', 'FDXB', 'FDBX', 'GS'};
+AC_alg = {'NR', 'NR-SC', 'NR-IP', 'NR-IC', 'FDXB', 'FDBX', 'GS', 'ZG'};
 AC_name = {
     'Newton (default, power-polar)',
     'Newton (power-cartesian)',
@@ -21,7 +21,8 @@ AC_name = {
     'Newton (current-cartesian)',
     'Fast Decoupled (XB)',
     'Fast Decoupled (BX)',
-    'Gauss-Seidel'
+    'Gauss-Seidel',
+    'Implicit Z-bus Gauss'
 };
 
 t_begin(length(AC_alg)*44 + 14, quiet);
