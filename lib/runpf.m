@@ -95,7 +95,7 @@ end
 
 %% options
 qlim = mpopt.pf.enforce_q_lims;         %% enforce Q limits on gens?
-dc = strcmp(upper(mpopt.model), 'DC');  %% use DC formulation?
+dc = strcmp(upper(mpopt.model), 'DC') || strcmp(upper(mpopt.model), 'DC_LOSS');  %% use DC formulation?
 
 %% read data
 mpc = loadcase(casedata);
@@ -137,6 +137,22 @@ if ~isempty(mpc.bus)
         %% compute complex bus power injections (generation - load)
         %% adjusted for phase shifters and real shunts
         Pbus = real(makeSbus(baseMVA, bus, gen)) - Pbusinj - bus(:, GS) / baseMVA;
+        
+
+        % If I^2 * R losses are to be included
+        if strcmp(upper(mpopt.model), 'DC_LOSS')
+            bus_loss = zeros(size(Pbus, 1), 1);
+            for i = 1:size(bus_loss, 1)
+                from_branch_indices = branch(:, F_BUS) == i;
+                to_branch_indices = branch(:, T_BUS) == i;
+                branch_indices = from_branch_indices | to_branch_indices;
+                all_losses = get_losses(mpc);
+                losses = real(all_losses(branch_indices)) / baseMVA;
+                bus_loss(i) = sum(losses)*0.5;
+            end
+
+            Pbus = Pbus - bus_loss;
+        end
 
         %% "run" the power flow
         [Va, success] = dcpf(B, Pbus, Va0, ref, pv, pq);

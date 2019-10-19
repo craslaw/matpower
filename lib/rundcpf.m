@@ -68,5 +68,8 @@ if nargin < 4
     end
 end
 
-mpopt = mpoption(mpopt, 'model', 'DC');
+% Unless the user has specified to use the DC_LOSS model, switch to DC model
+if strcmp(upper(mpopt.model), 'DC_LOSS') == 0
+    mpopt = mpoption(mpopt, 'model', 'DC');  % Define the key 'model' with the value 'DC'
+end
 [varargout{1:nargout}] = runpf(casedata, mpopt, fname, solvedcase);
