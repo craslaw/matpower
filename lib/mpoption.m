@@ -101,6 +101,13 @@ function opt = mpoption(varargin)
 %       [  0 - do NOT enforce limits                                        ]
 %       [  1 - enforce limits, simultaneous bus type conversion             ]
 %       [  2 - enforce limits, one-at-a-time bus type conversion            ]
+%   pf.dc.lossy             0           include real line losses in solver
+%       [  0 - do NOT include line losses                                   ]
+%       [  1 - include line losses                                          ]
+%   pf.dc.Vm                0           include case data voltage magnitudes
+%                                       in solver
+%       [  0 - do NOT include voltage magnitudes                            ]
+%       [  1 - include voltage magnitudes                                   ]
 %
 %Continuation Power Flow options:
 %   cpf.parameterization    3           choice of parameterization
@@ -798,6 +805,10 @@ for f = 1:length(fields)
             opt.pf.gs.max_it = ov.(ff);
         case 'ENFORCE_Q_LIMS'
             opt.pf.enforce_q_lims = ov.(ff);
+        case 'LOSSY'
+            opt.pf.dc.lossy = ov.(ff);
+        case 'VM'
+            opt.pf.dc.VM = ov.(ff);
         case 'PF_DC'
             switch ov.(ff)
                 case 0
@@ -1037,6 +1048,8 @@ opt_s.pf.nr.max_it          = opt_v(3);         %% PF_MAX_IT
 opt_s.pf.fd.max_it          = opt_v(4);         %% PF_MAX_IT_FD
 opt_s.pf.gs.max_it          = opt_v(5);         %% PF_MAX_IT_GS
 opt_s.pf.enforce_q_lims     = opt_v(6);         %% ENFORCE_Q_LIMS
+opt_s.pf.dc.lossy           = opt_v(7);         %% LOSSY
+opt_s.pf.dc.Vm              = opt_v(8);         %% VM
 switch opt_v(10)                                %% PF_DC
     case 0
         opt_s.model = 'AC';
@@ -1418,8 +1431,8 @@ opt_v = [
         opt_s.pf.fd.max_it;     %% 4  - PF_MAX_IT_FD
         opt_s.pf.gs.max_it;     %% 5  - PF_MAX_IT_GS
         opt_s.pf.enforce_q_lims;%% 6  - ENFORCE_Q_LIMS
-        0;                      %% 7  - RESERVED7
-        0;                      %% 8  - RESERVED8
+        opt_s.pf.dc.lossy;      %% 7  - LOSSY
+        opt_s.pf.dc.Vm;         %% 8  - VM
         0;                      %% 9  - RESERVED9
         PF_DC;                  %% 10 - PF_DC
         
@@ -1547,6 +1560,8 @@ if ~isstruct(opt)
                 'max_it',               20   , ...
                 'vcorr',                 0  ), ...
             'enforce_q_lims',       0   ), ...
+            'lossy',                0   ), ...
+            'Vm',                   0   ), ...
         'cpf',                  struct(...
             'parameterization',     3, ...
             'stop_at',              'NOSE', ...     %% 'NOSE', <lam val>, 'FULL'
