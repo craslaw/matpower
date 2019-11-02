@@ -52,7 +52,6 @@ function opt = mpoption(varargin)
 %   model                   'AC'        AC vs. DC power flow model
 %       [ 'AC' - use nonlinear AC model & corresponding algorithms/options  ]
 %       [ 'DC' - use linear DC model & corresponding algorithms/options     ]
-%       [ 'DC_loss' - use linear DC model with line losses included         ]
 %
 %Power Flow options:
 %   pf.alg                  'NR'        AC power flow algorithm
@@ -805,8 +804,6 @@ for f = 1:length(fields)
                     opt.model = 'AC';
                 case 1
                     opt.model = 'DC';
-                case 2
-                    opt.model = 'DC_loss';
                 otherwise
                     error(errstr, ov.(ff), ff);
             end
@@ -1045,8 +1042,6 @@ switch opt_v(10)                                %% PF_DC
         opt_s.model = 'AC';
     case 1
         opt_s.model = 'DC';
-    case 2
-        opt_s.model = 'DC_loss';
     otherwise
         error(errstr, opt_v(10), 'PF_DC');
 end
@@ -1212,7 +1207,7 @@ switch upper(opt_s.pf.alg)
 end
 
 %% PF_DC
-if strcmp(upper(opt_s.model), 'DC') || strcmp(upper(opt_s.model), 'DC_loss')
+if strcmp(upper(opt_s.model), 'DC')
     PF_DC = 1;
 else
     PF_DC = 0;
@@ -1579,8 +1574,6 @@ if ~isstruct(opt)
             'ac',                   struct(...
                 'solver',               'DEFAULT'   ), ...
             'dc',                   struct(...
-                'solver',               'DEFAULT'   ), ...
-            'dc_loss',              struct(...
                 'solver',               'DEFAULT'   ), ...
             'current_balance',      0, ...
             'v_cartesian',          0, ...
