@@ -95,7 +95,7 @@ end
 
 %% options
 qlim = mpopt.pf.enforce_q_lims;         %% enforce Q limits on gens?
-dc = strcmp(upper(mpopt.model), 'DC') || strcmp(upper(mpopt.model), 'DC_LOSS');  %% use DC formulation?
+dc = strcmp(upper(mpopt.model), 'DC');  %% use DC formulation?
 
 %% read data
 mpc = loadcase(casedata);
@@ -140,7 +140,7 @@ if ~isempty(mpc.bus)
         
 
         % If I^2 * R losses are to be included
-        if strcmp(upper(mpopt.pf.dc.lossy), 1)
+        if mpopt.pf.dc.lossy == 1
             bus_loss = zeros(size(Pbus, 1), 1);
             for i = 1:size(bus_loss, 1)
                 from_branch_indices = branch(:, F_BUS) == i;
@@ -153,7 +153,7 @@ if ~isempty(mpc.bus)
 
             Pbus = Pbus - bus_loss;
         end
-        if strcmp(upper(mpopt.pf.dc.Vm), 1)
+        if mpopt.pf.dc.Vm == 1
             V = abs(mpc.bus(:,VM).*exp(1i*mpc.bus(:,VA)*pi/180)); % Complex voltage phasor
             n = size(V, 1);
             V_cols = zeros(n,n);
