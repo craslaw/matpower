@@ -141,17 +141,16 @@ if ~isempty(mpc.bus)
 
         % If I^2 * R losses are to be included
         if mpopt.pf.dc.lossy == 1
-            bus_loss = zeros(size(Pbus, 1), 1);
-            for i = 1:size(bus_loss, 1)
+            gen_loss = zeros(size(Pbus, 1), 1);
+            all_losses = get_losses(mpc);
+            for i = 1:size(gen_loss, 1)
                 from_branch_indices = branch(:, F_BUS) == i;
                 to_branch_indices = branch(:, T_BUS) == i;
                 branch_indices = from_branch_indices | to_branch_indices;
-                all_losses = get_losses(mpc);
-                losses = real(all_losses(branch_indices)) / baseMVA;
-                bus_loss(i) = sum(losses)*0.5;
+                gen_loss(i) = sum(real(branch_indices.*all_losses))*0.5;
             end
 
-            Pbus = Pbus - bus_loss;
+            Pbus = Pbus - gen_loss;
         end
         if mpopt.pf.dc.Vm == 1
             V = abs(mpc.bus(:,VM).*exp(1i*mpc.bus(:,VA)*pi/180)); % Complex voltage phasor
