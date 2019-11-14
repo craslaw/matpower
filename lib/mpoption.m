@@ -107,7 +107,8 @@ function opt = mpoption(varargin)
 %   pf.dc.Vm                0           include case data voltage magnitudes
 %                                       in solver
 %       [  0 - do NOT include voltage magnitudes                            ]
-%       [  1 - include voltage magnitudes                                   ]
+%       [  1 - include all voltage magnitudes  (hot start)                  ]   
+%       [  2 - include PV bus voltage magnitudes (cold start)               ]
 %
 %Continuation Power Flow options:
 %   cpf.parameterization    3           choice of parameterization
