@@ -142,13 +142,13 @@ if ~isempty(mpc.bus)
         % If I^2 * R losses are to be included
         if mpopt.pf.dc.lossy == 1
             bus_loss = zeros(size(Pbus, 1), 1);
+            all_losses = get_losses(mpc);
             for i = 1:size(bus_loss, 1)
-                from_branch_indices = branch(:, F_BUS) == i;
-                to_branch_indices = branch(:, T_BUS) == i;
-                branch_indices = from_branch_indices | to_branch_indices;
-                all_losses = get_losses(mpc);
-                losses = real(all_losses(branch_indices)) / baseMVA;
-                bus_loss(i) = sum(losses)*0.5;
+                branch_indices = (branch(:, F_BUS) == i) | (branch(:, T_BUS) == i);
+                if any(branch_indices)
+                    losses = real(all_losses(branch_indices)) / baseMVA;
+                    bus_loss(i) = sum(losses)*0.5;
+                end
             end
 
             Pbus = Pbus - bus_loss;
