@@ -155,12 +155,8 @@ if ~isempty(mpc.bus)
         if mpopt.pf.dc.Vm == 1
             V = abs(mpc.bus(:,VM).*exp(1i*mpc.bus(:,VA)*pi/180)); % Complex voltage phasor
             n = size(V, 1);
-            V_cols = zeros(n,n);
-            V_rows = zeros(n,n);
-            for i = 1:n
-                V_cols(:,i) = V;
-                V_rows(i,:) = V;
-            end
+            V_cols = repmat(V, 1, n);
+            V_rows = V_cols';
             % Modify the B matrix using the Voltage magnitudes
             % [ B11 | B12 | ... ]    [ V1*V1*B11 | V1*V2*B12 | ... ]
             % [ B21 | B22 | ... ] -> [ V2*V1*B21 | V2*V2*B22 | ... ]
