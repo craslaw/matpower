@@ -162,21 +162,14 @@ if ~isempty(mpc.bus)
             % [ B21 | B22 | ... ] -> [ V2*V1*B21 | V2*V2*B22 | ... ]
             % [ ... | ... | ... ]    [    ...    |    ...    | ... ]
             B = V_cols.*V_rows.*B;
-        elseif mptop.pf.dc.Bm == 2
+        elseif mpopt.pf.dc.Vm == 2
             V = abs(mpc.bus(:,VM).*exp(1i*mpc.bus(:,VA)*pi/180)); % Complex voltage phasor
             % Cold start option: use only PV bus voltages
-            for i = 1:size(V)
-                if any(pv==i)||any(pq==i)
-                    V(i) = 1;
-                end
-            end
+            PVIndices = mpc.bus(:,2)==2 | mpc.bus(:,2)==3;
+            V = V.*PVIndices + not(PVIndices);
             n = size(V, 1);
-            V_cols = zeros(n,n);
-            V_rows = zeros(n,n);
-            for i = 1:n
-                V_cols(:,i) = V;
-                V_rows(i,:) = V;
-            end
+            V_cols = repmat(V, 1, n);
+            V_rows = V_cols';
             % Modify the B matrix using the Voltage magnitudes
             % [ B11 | B12 | ... ]    [ V1*V1*B11 | V1*V2*B12 | ... ]
             % [ B21 | B22 | ... ] -> [ V2*V1*B21 | V2*V2*B22 | ... ]
