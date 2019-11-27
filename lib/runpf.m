@@ -137,8 +137,6 @@ if ~isempty(mpc.bus)
         %% compute complex bus power injections (generation - load)
         %% adjusted for phase shifters and real shunts
         Pbus = real(makeSbus(baseMVA, bus, gen)) - Pbusinj - bus(:, GS) / baseMVA;
-        
-
         % If I^2 * R losses are to be included
         if mpopt.pf.dc.lossy == 1
             bus_loss = zeros(size(Pbus, 1), 1);
@@ -162,6 +160,15 @@ if ~isempty(mpc.bus)
             % [ B11 | B12 | ... ]    [ V1*V1*B11 | V1*V2*B12 | ... ]
             % [ B21 | B22 | ... ] -> [ V2*V1*B21 | V2*V2*B22 | ... ]
             % [ ... | ... | ... ]    [    ...    |    ...    | ... ]
+            B = V_cols.*V_rows.*B;
+        elseif mpopt.pf.dc.VM == 2
+            V = abs(mpc.bus(:,VM).*exp(1i*mpc.bus(:,VA)*pi/180)); %Complex voltage phasor
+            % Cold start option: use only PV bus voltages
+            PVIndices = mpc.bus(:,2) == 2 | mpc.bus(:,2) == 3;
+            V = V.*PVIndices + not(PVIndices);
+            n = size(V,1);
+            V_cols = repmat(V,1,n);
+            V_rows = V_cols';
             B = V_cols.*V_rows.*B;
         else
             V = ones(size(bus, 1), 1);
