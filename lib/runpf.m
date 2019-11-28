@@ -161,7 +161,7 @@ if ~isempty(mpc.bus)
             % [ B21 | B22 | ... ] -> [ V2*V1*B21 | V2*V2*B22 | ... ]
             % [ ... | ... | ... ]    [    ...    |    ...    | ... ]
             B = V_cols.*V_rows.*B;
-        elseif mpopt.pf.dc.VM == 2
+        elseif mpopt.pf.dc.Vm == 2
             V = abs(mpc.bus(:,VM).*exp(1i*mpc.bus(:,VA)*pi/180)); %Complex voltage phasor
             % Cold start option: use only PV bus voltages
             PVIndices = mpc.bus(:,2) == 2 | mpc.bus(:,2) == 3;
