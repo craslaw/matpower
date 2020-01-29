@@ -137,10 +137,16 @@ if ~isempty(mpc.bus)
         %% compute complex bus power injections (generation - load)
         %% adjusted for phase shifters and real shunts
         Pbus = real(makeSbus(baseMVA, bus, gen)) - Pbusinj - bus(:, GS) / baseMVA;
-        % If I^2 * R losses are to be included
+        
+        % Check to see if I^2*R losses are to be included in the calculation
         if mpopt.pf.dc.lossy == 1
+            % Initialize an array of zeros for the I^2*R power losses at each bus
             bus_loss = zeros(size(Pbus, 1), 1);
+            % Get the real power losses for each line from the mpc case file
             all_losses = get_losses(mpc);
+            % Iterate through each bus. Find all lines that are either To 
+            % or From that bus. Sum the total losses and divide by 2 (because
+            % each line is connected to two buses)
             for i = 1:size(bus_loss, 1)
                 branch_indices = (branch(:, F_BUS) == i) | (branch(:, T_BUS) == i);
                 if any(branch_indices)
@@ -148,10 +154,13 @@ if ~isempty(mpc.bus)
                     bus_loss(i) = sum(losses)*0.5;
                 end
             end
-
+            % Subtract these losses from the remaining power at the bus
             Pbus = Pbus - bus_loss;
         end
+        
+        % Check to see if voltage magnitudes are to be included in the calculation
         if mpopt.pf.dc.Vm == 1
+            % Hot start option: Use voltage values for all buses from mpc case file
             V = abs(mpc.bus(:,VM).*exp(1i*mpc.bus(:,VA)*pi/180)); % Complex voltage phasor
             n = size(V, 1);
             V_cols = repmat(V, 1, n);
@@ -163,7 +172,7 @@ if ~isempty(mpc.bus)
             B = V_cols.*V_rows.*B;
         elseif mpopt.pf.dc.Vm == 2
             V = abs(mpc.bus(:,VM).*exp(1i*mpc.bus(:,VA)*pi/180)); %Complex voltage phasor
-            % Cold start option: use only PV bus voltages
+            % Cold start option: Use only PV bus voltages from mpc case file
             PVIndices = mpc.bus(:,2) == 2 | mpc.bus(:,2) == 3;
             V = V.*PVIndices + not(PVIndices);
             n = size(V,1);
@@ -171,6 +180,8 @@ if ~isempty(mpc.bus)
             V_rows = V_cols';
             B = V_cols.*V_rows.*B;
         else
+            % Initialize the V vector to all ones if the voltage 
+            % magnitudes are not to be included
             V = ones(size(bus, 1), 1);
         end
 
